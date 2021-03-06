@@ -1,4 +1,5 @@
 import React, { useContext, useState, useEffect } from 'react'
+import { uid } from 'uid'
 import debounce from 'lodash/debounce'
 import { Spinner } from 'react-bootstrap'
 import { useSnackbar } from 'react-simple-snackbar'
@@ -18,7 +19,7 @@ const snackOptions = {
 const Search = ({ asideHeight, setActiveSection }) => {
   const [loading, setLoading] = useState(false)
   const [open] = useSnackbar(snackOptions)
-  const { api, dispatch, state: { searchSection, chatSection, user, activeRoom }} = useContext(AppContext)
+  const { api, dispatch, state: { searchSection, chatSection, user }} = useContext(AppContext)
 
   useEffect(() => {
     const fn = async () => {
@@ -54,7 +55,16 @@ const Search = ({ asideHeight, setActiveSection }) => {
   }
 
   const handleStartChat = (guest) => {
+    const found = chatSection.list.find(item => {
+      return item.chat_guest._id === guest._id && 
+      item.chat_owner._id === user._id
+    })
+    if (found) {
+      open('Chat have already exists', 2000)
+      return
+    }
     const newChat = {
+      _id: uid(32),
       chat_guest: guest,
       chat_owner: user,
       messages: []
@@ -73,8 +83,6 @@ const Search = ({ asideHeight, setActiveSection }) => {
     setActiveSection(1)
   }
 
-  const isDisabled = true
-
   return (
     <StyledSection>
       <SearchInput handleChange={debounce(handleSearchValue, 1000)} />
@@ -83,7 +91,6 @@ const Search = ({ asideHeight, setActiveSection }) => {
           <SearchItem 
           {...item} 
           key={item._id} 
-          disabled={isDisabled}
           handleChatStart={handleStartChat} 
           />
         )

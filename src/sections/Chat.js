@@ -3,8 +3,13 @@ import ChatItem from '../components/ChatItem'
 import { AppContext } from '../store'
 
 const Chat = () => {
-  const { state: { chatSection, activeRoom } } = useContext(AppContext)
+  const { state: { chatSection, activeRoom }, dispatch } = useContext(AppContext)
   const chatList = chatSection.list
+
+  const setActiveRoom = (id) => {
+    dispatch({ payload: { activeRoom: id }})
+  }
+
   return (
     <>
       {chatList.length
@@ -12,7 +17,9 @@ const Chat = () => {
           return <ChatItem 
           {...chat} 
           key={index} 
-          focused={chat._id === activeRoom || index === activeRoom} 
+          focused={chat._id === activeRoom || index === activeRoom}
+          handleClick={setActiveRoom}
+          _id={chat._id || index} 
           />
         }) : 'You have no dialogues'}
     </>

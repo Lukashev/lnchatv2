@@ -10,6 +10,7 @@ const api = new Api()
 
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState)
+
   return (
     <AppContext.Provider value={{ state, dispatch, api }}>
       <SnackbarProvider>

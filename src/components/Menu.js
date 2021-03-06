@@ -1,8 +1,16 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { number, func, arrayOf, shape, string } from 'prop-types'
 import classnames from 'classnames'
+import { AppContext } from '../store'
 
 const Menu = ({ activeSection, setActiveSection, menuItems }) => {
+  const { dispatch } = useContext(AppContext)
+
+  const handleClick = id => () => {
+    dispatch({ payload: { activeRoom: null } })
+    setActiveSection(id)
+  }
+
   return (
     <nav className='aside-menu d-flex justify-content-around'>
       {menuItems.map(({ id, slug }) => (
@@ -10,7 +18,7 @@ const Menu = ({ activeSection, setActiveSection, menuItems }) => {
           key={id}
           className={classnames('fas', slug, 'fa-2x', 'aside-menu--item')}
           style={{ color: activeSection === id ? '#6588de' : 'initial' }}
-          onClick={() => setActiveSection(id)}
+          onClick={handleClick(id)}
         />
       ))}
     </nav>

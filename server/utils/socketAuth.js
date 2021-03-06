@@ -7,14 +7,15 @@ export default () => {
     secret: config.JWT_SECRET,
     algorithm: 'HS256'
   }, async (payload, done) => {
+    // console.log(payload)
     try {
-      const user = await User.findById(payload.id)
+      const user = await User.findById(payload._doc._id)
       if (!user) {
         return done(null, false, 'User does not exist')
       }
       return done(null, user)
     } catch (e) {
-      return done(err)
+      return done(e)
     }
   })
 }

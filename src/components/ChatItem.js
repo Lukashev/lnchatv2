@@ -1,16 +1,20 @@
 import { isEqual } from 'lodash'
 import moment from 'moment'
-import { string, array, object, bool } from 'prop-types'
+import { string, array, object, bool, func } from 'prop-types'
 import React, { memo } from 'react'
 
 const ChatItem = ({
   chat_guest: { status, avatar, username },
   messages = [],
   created_at,
-  focused
+  focused,
+  handleClick,
+  _id
 }) => {
   return (
-    <div className={`chat-list--item d-flex align-items-center ${status} ${focused ? 'focused' : ''}`}>
+    <div
+    onClick={() => handleClick(_id)}
+    className={`chat-list--item d-flex align-items-center ${status} ${focused ? 'focused' : ''}`}>
       <img
         src={avatar || 'assets/images/default-avatar.jpg'}
         alt={`${username} avatar`}
@@ -40,12 +44,14 @@ ChatItem.propTypes = {
   chat_guest: object.isRequired,
   chat_owner: object.isRequired,
   created_at: string,
-  focused: bool.isRequired
+  focused: bool.isRequired,
+  handleClick: func
 }
 
 ChatItem.defaultProps = {
   chat_guest: {},
   chat_owner: {},
+  handleClick: () => {}
 }
 
 export default memo(ChatItem, (prevProps, nextProps) => {

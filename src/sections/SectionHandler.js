@@ -3,10 +3,12 @@ import { Col, Container, Row } from 'react-bootstrap'
 import cookies from 'react-cookies'
 import { useSnackbar } from 'react-simple-snackbar'
 import { Button } from 'react-bootstrap'
+import { io } from 'socket.io-client'
 import { AppContext } from '../store'
 import sections from '../sections'
 import ProfilePanel from '../components/ProfilePanel'
 import Menu from '../components/Menu'
+import SocketListener from '../stateful'
 
 const snackOptions = {
   position: 'bottom-left',
@@ -18,8 +20,9 @@ const snackOptions = {
 
 const SectionHandler = () => {
   // store
-  const { state: { user }, api, dispatch } = useContext(AppContext)
+  const { state: { user, activeRoom, authToken, socket, chatSection }, api, dispatch } = useContext(AppContext)
   const [open] = useSnackbar(snackOptions)
+  const { currentMsg } = chatSection
 
   // local state
   const [activeSection, setActiveSection] = useState(1)
@@ -33,6 +36,10 @@ const SectionHandler = () => {
     }
   }, []) // eslint-disable-line
 
+  const handleMsgChange = ({ target: { value } }) => {
+    dispatch({ payload: { chatSection: { ...chatSection, currentMsg: value } } })
+  }
+
   // useEffects
   useEffect(() => {
     window.addEventListener('resize', resizeHandler)
@@ -44,6 +51,11 @@ const SectionHandler = () => {
             user: data.result
           }
         })
+        // setup socket connection
+        const socket = io('/', {
+          query: `auth_token=${authToken.split(' ')[1]}`
+        })
+        dispatch({ payload: { socket } })
       } catch ({ response }) {
         if (response.status === 401) {
           dispatch({
@@ -60,7 +72,25 @@ const SectionHandler = () => {
     }
   }, []) // eslint-disable-line
 
+  useEffect(() => {
+    if (socket) {
+      new SocketListener(socket, dispatch, open)
+    }
+  }, [socket]) // eslint-disable-line
+
   const SectionComponent = sections[activeSection]
+
+  const handleSendMsg = () => {
+    const currentChat = chatSection.list.find(item => item._id === activeRoom)
+    if (currentChat) {
+      socket.emit('send_message', {
+        chat_owner: user._id,
+        chat_guest: currentChat.chat_guest._id,
+        text: currentMsg
+      })
+      dispatch({ payload: { chatSection: { ...chatSection, currentMsg: '' } } })
+    }
+  }
 
   return (
     <Container fluid>
@@ -68,7 +98,7 @@ const SectionHandler = () => {
         <Col as='aside' md={4}>
           <div className='d-flex flex-column'>
             <ProfilePanel {...user} />
-            <div className='chat-list d-flex' style={{ maxHeight: `${asideHeight}px` }}>
+            <div className='chat-list d-flex flex-column' style={{ maxHeight: `${asideHeight}px` }}>
               {user
                 ? <SectionComponent setActiveSection={setActiveSection} asideHeight={asideHeight} />
                 : 'Please, login to account...'}
@@ -96,8 +126,12 @@ const SectionHandler = () => {
                   <i className="fas fa-microphone fa-lg"></i>
                 </button>
               </div>
-              <input type="text" className="w-100" placeholder="Type a new message" />
-              <Button className="toolbar--send-btn" disabled={!!!user}>
+              <input type="text" onChange={handleMsgChange} value={currentMsg} className="w-100" placeholder="Type a new message" />
+              <Button
+                className="toolbar--send-btn"
+                disabled={!!!(user && (activeRoom !== null))}
+                onClick={handleSendMsg}
+              >
                 Send
                 <i className="fas fa-paper-plane fa-lg"></i>
               </Button>

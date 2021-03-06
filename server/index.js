@@ -7,6 +7,7 @@ import http from 'http'
 import SocketIO from 'socket.io'
 import socketAuth from './utils/socketAuth'
 import apiRouter from '@root/api'
+import SocketListener from '@root/stateful'
 import './db'
 
 const app = express()
@@ -26,9 +27,7 @@ app.use('*', (req, res) => {
 
 io.use(socketAuth())
 
-io.on('connection', socket => {
-  console.log('User joined')
-})
+new SocketListener(io)
 
 server.listen(process.env.PORT || 5000, () => {
   console.log('Server is running')
