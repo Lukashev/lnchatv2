@@ -41,3 +41,20 @@ export const StyledLogin = styled(Modal)`
     font-size: 14px;
   }
 `
+
+export const StyledSearchItem = styled.div`
+  * {
+    font-size: 12px;
+  }
+  & img {
+    width: 44px;
+    height: 44px;
+    border-radius: 100%;
+    margin-right: 20px;
+  }
+  &.offline {
+    & img {
+      border: 2px solid gray;
+    }
+  }
+`

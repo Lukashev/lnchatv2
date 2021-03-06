@@ -70,7 +70,7 @@ const SectionHandler = () => {
             <ProfilePanel {...user} />
             <div className='chat-list d-flex' style={{ maxHeight: `${asideHeight}px` }}>
               {user
-                ? <SectionComponent asideHeight={asideHeight} />
+                ? <SectionComponent setActiveSection={setActiveSection} asideHeight={asideHeight} />
                 : 'Please, login to account...'}
             </div>
             <Menu

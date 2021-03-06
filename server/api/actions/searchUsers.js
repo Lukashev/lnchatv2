@@ -1,12 +1,13 @@
 import User from '@root/models/User'
 
-export default async function (req) {
-  const { query: { limit, username } } = req
+export default async function ({ limit, username = '', uname = '' }) {
   const users = await User.find({
     username: {
       $regex: username, $options: 'i',
-      $ne: req.user?.username
+      $ne: uname
     }
-  }).limit(limit || 50)
+  })
+  .select({ email: false, password: false })
+  .limit(limit || 50)
   return users
 }

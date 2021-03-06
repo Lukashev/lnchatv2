@@ -30,6 +30,16 @@ const userSchema = new Schema({
     required: false,
     default: ''
   },
+  status: {
+    type: String,
+    required: false,
+    default: 'offline'
+  },
+  sessionId: {
+    type: String,
+    required: false,
+    default: null 
+  },
   regDate: { type: Date, default: Date.now },
 })
 

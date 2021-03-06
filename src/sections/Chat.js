@@ -1,10 +1,21 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import ChatItem from '../components/ChatItem'
+import { AppContext } from '../store'
 
 const Chat = () => {
+  const { state: { chatSection, activeRoom } } = useContext(AppContext)
+  const chatList = chatSection.list
   return (
-    <div>
-      Chat
-    </div>
+    <>
+      {chatList.length
+        ? chatList.map((chat, index) => {
+          return <ChatItem 
+          {...chat} 
+          key={index} 
+          focused={chat._id === activeRoom || index === activeRoom} 
+          />
+        }) : 'You have no dialogues'}
+    </>
   )
 }
 

@@ -11,11 +11,14 @@ export const initialState = {
     retypePassword: ''
   },
   searchSection: {
-    list: []
+    list: [],
+    value: '',
+    newChat: {}
   },
   chatSection: {
     list: []
-  }
+  },
+  activeRoom: null
 }
 
 export const reducer = (state = initialState, action) => ({
