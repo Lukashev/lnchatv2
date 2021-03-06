@@ -1,38 +1,61 @@
-.App {
-  text-align: center;
+.wrapper {
+  margin: auto;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+#root {
+  height: 100%;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
-  }
+#root > div:nth-child(2){
+  height: initial;
 }
 
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+.wrapper ~ * {
+  height: initial;
 }
 
-.App-link {
-  color: #61dafb;
+.wrapper div:not(:first-child, .chat-list, .chat-list > div) {
+  height: initial;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+aside .chat-list {
+  height: 100vh;
+}
+
+.menu-btn {
+  position: relative;
+}
+
+.profile-panel--action-list {
+  position: absolute;
+  width: initial;
+  min-width: 130px;
+  right: 0;
+  z-index: 2;
+}
+
+.profile-panel--action-list > div {
+  font-size: 14px;
+  height: initial;
+}
+
+.profile-panel--avatar.online {
+  border-color: #46d362;
+}
+
+.profile-panel--avatar.offline {
+  border-color: gray;
+}
+
+.profile-panel--avatar.away {
+  border-color: #f3ba4a;
+}
+
+.profile-panel--avatar.busy {
+  border-color: #fd2828;
+}
+
+.modal-backdrop {
+  z-index: 0;
+  height: 100%;
 }
