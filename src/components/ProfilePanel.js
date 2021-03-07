@@ -1,8 +1,7 @@
-import React, { useState, useContext } from 'react'
+import React, { useState } from 'react'
 import cookies from 'react-cookies'
 import { oneOf, string } from 'prop-types'
 import { ListGroup } from 'react-bootstrap'
-import { AppContext } from '../store'
 import Login from './Login'
 import { useDispatch, useSelector } from 'react-redux'
 

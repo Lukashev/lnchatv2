@@ -72,4 +72,7 @@ export const StyledSearchItem = styled.div`
       border: 2px solid #f3ba4a;
     }
   }
+  & .info-block {
+    min-width: 220px;
+  }
 `

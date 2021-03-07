@@ -36,7 +36,7 @@ const Search = ({ asideHeight, setActiveSection }) => {
             }
           }
         })
-      } catch(e) {
+      } catch (e) {
         open(String(e), 2000)
       } finally {
         setLoading(false)
@@ -59,8 +59,8 @@ const Search = ({ asideHeight, setActiveSection }) => {
 
   const handleStartChat = (guest) => {
     const found = chatSection.list.find(item => {
-      return item.chat_guest._id === guest._id && 
-      item.chat_owner._id === user._id
+      return item.chat_guest._id === guest._id &&
+        item.chat_owner._id === user._id
     })
     if (found) {
       open('Chat have already exists', 2000)
@@ -75,6 +75,10 @@ const Search = ({ asideHeight, setActiveSection }) => {
     dispatch({
       type: 'SET_MAIN_STATE',
       payload: {
+        searchSection: {
+          ...searchSection,
+          newChat
+        },
         chatSection: {
           ...chatSection,
           list: [
@@ -92,10 +96,10 @@ const Search = ({ asideHeight, setActiveSection }) => {
       <SearchInput handleChange={debounce(handleSearchValue, 1000)} />
       {searchSection.list.map(item => {
         return (
-          <SearchItem 
-          {...item} 
-          key={item._id} 
-          handleChatStart={handleStartChat} 
+          <SearchItem
+            {...item}
+            key={item._id}
+            handleChatStart={handleStartChat}
           />
         )
       })}

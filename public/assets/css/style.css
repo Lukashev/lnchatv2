@@ -178,6 +178,13 @@ aside .online {
   padding: 0 10px;
 }
 
+.chat-list--info-title, .chat-list--msg {
+  white-space: nowrap; 
+  overflow: hidden;
+  text-overflow: ellipsis; 
+  max-width: 253px;
+}
+
 .chat-list--item:hover {
   cursor: pointer;
 }

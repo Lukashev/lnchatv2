@@ -29,37 +29,38 @@ class SocketListener {
       openSession.call(scope)
 
       socket.on('change_user_status', (arg) => {
-        openSession.call(scope, arg) 
+        openSession.call(scope, arg)
       })
       /**
        * When user send private message
        */
-      socket.on('send_message', async ({ chat_owner, chat_guest, text }, callback) => {
+      socket.on('send_message', async ({ from, to, text }) => {
+        console.log(from, to, text)
         try {
           let chat = await Chat.findOne(
             {
               $or: [
-                { chat_owner, chat_guest },
-                { chat_owner: chat_guest, chat_guest: chat_owner }
+                { chat_owner: from, chat_guest: to },
+                { chat_owner: to, chat_guest: from }
               ]
             }
           )
           if (!chat) {
-            chat = await Chat.create({ chat_guest, chat_owner })
+            chat = await Chat.create({ chat_guest: to, chat_owner: from })
           }
           const message = await Message.create({
             chat: chat._id,
-            from: chat_owner,
-            to: chat_guest,
+            from,
+            to,
             text
           })
           const destUser = await User.findById(message.to)
           socket.emit('chat_message', message)
           if (destUser.sessionId) {
-            socket.broadcast.to(destUser.sessionId).emit('chat_message',  message)
+            socket.broadcast.to(destUser.sessionId).emit('chat_message', message)
           }
-        } catch(e) {
-          callback({ message: e.message })
+        } catch (e) {
+          throw new Error(e)
         }
       })
 

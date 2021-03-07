@@ -4,7 +4,7 @@ import { useSnackbar } from 'react-simple-snackbar'
 import ChatItem from '../components/ChatItem'
 
 const Chat = () => {
-  const { chatSection, activeRoom, api } = useSelector(state => state)
+  const { chatSection, activeRoom, api, searchSection, user } = useSelector(state => state)
   const [open] = useSnackbar()
   const dispatch = useDispatch()
   const chatList = chatSection.list
@@ -24,10 +24,19 @@ const Chat = () => {
             messages: messages.filter(m => m.chat === c._id)
           }
         })
-        console.log(list)
-        dispatch({ 
-          type: 'SET_MAIN_STATE', 
-          payload: { chatSection: { ...chatSection, list } } 
+        const { newChat } = searchSection
+        dispatch({
+          type: 'SET_MAIN_STATE',
+          payload: {
+            chatSection: {
+              ...chatSection,
+              list: newChat ? [newChat, ...list] : list
+            },
+            searchSection: {
+              ...searchSection,
+              newChat: null
+            }
+          }
         })
       } catch (e) {
         open(String(e), 2000)
@@ -45,6 +54,7 @@ const Chat = () => {
             key={index}
             focused={chat._id === activeRoom || index === activeRoom}
             handleClick={setActiveRoom}
+            userId={user._id}
             _id={chat._id || index}
           />
         }) : 'You have no dialogues'}

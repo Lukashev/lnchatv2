@@ -14,7 +14,7 @@ export const initialState = {
   searchSection: {
     list: [],
     value: '',
-    newChat: {}
+    newChat: null
   },
   chatSection: {
     list: [],
@@ -25,13 +25,13 @@ export const initialState = {
 }
 
 export const reducer = (state = initialState, action) => {
-  switch(action.type) {
+  switch (action.type) {
     case 'SET_MAIN_STATE':
       return {
         ...state,
         ...action.payload
       }
-    default: 
-    return state
+    default:
+      return state
   }
 }

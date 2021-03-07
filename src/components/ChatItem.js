@@ -4,17 +4,20 @@ import { string, array, object, bool, func } from 'prop-types'
 import React, { memo } from 'react'
 
 const ChatItem = ({
-  chat_guest: { status, avatar, username },
+  chat_guest,
+  chat_owner,
   messages = [],
   created_at,
   focused,
   handleClick,
+  userId,
   _id
 }) => {
+  const { status, avatar, username } = userId === chat_guest._id ? chat_owner : chat_guest
   return (
     <div
-    onClick={() => handleClick(_id)}
-    className={`chat-list--item d-flex align-items-center ${status} ${focused ? 'focused' : ''}`}>
+      onClick={() => handleClick(_id)}
+      className={`chat-list--item d-flex align-items-center ${status} ${focused ? 'focused' : ''}`}>
       <img
         src={avatar || 'assets/images/default-avatar.jpg'}
         alt={`${username} avatar`}
@@ -32,7 +35,7 @@ const ChatItem = ({
         <div className="d-flex justify-content-between">
           <span className="chat-list--msg">
             {messages.length ? messages[messages.length - 1].text : 'Write the first message...'}
-        </span>
+          </span>
         </div>
       </div>
     </div>
@@ -51,7 +54,7 @@ ChatItem.propTypes = {
 ChatItem.defaultProps = {
   chat_guest: {},
   chat_owner: {},
-  handleClick: () => {}
+  handleClick: () => { }
 }
 
 export default memo(ChatItem, (prevProps, nextProps) => {

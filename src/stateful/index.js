@@ -17,7 +17,22 @@ class SocketListener {
     })
 
     this.socket.on('chat_message', msg => {
-      //this.dispatch({ type: 'SET_MAIN_STATE', payload: { chatId: msg.chat, msg } })
+      const { getState, dispatch } = this.store
+      const { chatSection } = getState()
+      const { list } = chatSection
+
+      const chatIdx = list.findIndex(c => c._id === msg.chat)
+      const clonedList = list.slice()
+      if (chatIdx > -1) {
+        clonedList[chatIdx].messages.push(msg)
+        dispatch({
+          type: 'SET_MAIN_STATE',
+          payload: {
+            ...chatSection,
+            list: clonedList
+          }
+        })
+      }
     })
 
     this.socket.on('user_status', ({ userId, status }) => {
