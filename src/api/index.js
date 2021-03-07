@@ -20,7 +20,6 @@ class Api {
   }
 
   async searchUsers(limit, username) {
-    console.log(username)
     return await http.get('/api/users', {
       params: {
         limit,

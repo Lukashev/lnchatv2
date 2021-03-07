@@ -20,6 +20,7 @@ const ProfilePanel = ({ username = 'Anonymous', avatar, status }) => {
       }
     })
     cookies.remove('Authorization')
+    state.socket?.disconnect()
   }
 
   return (

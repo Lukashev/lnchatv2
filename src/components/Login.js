@@ -50,7 +50,7 @@ const Login = ({ modalVisible, handleClose }) => {
       const { data } = await api[formType](state.auth)
       if (formType === 'login') {
         handleClose()
-        dispatch({ payload: { user: data.result }, authToken: data.token })
+        dispatch({ payload: { user: data.result, authToken: `Bearer ${data.token}` } })
         cookies.save('Authorization', `Bearer ${data.token}`)
       } else {
         setFormType('login')
@@ -62,6 +62,7 @@ const Login = ({ modalVisible, handleClose }) => {
       setLoading(false)
     }
   }
+
 
   return (
     <StyledLogin show={modalVisible} onHide={handleClose}>

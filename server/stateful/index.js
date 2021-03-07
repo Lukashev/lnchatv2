@@ -2,7 +2,12 @@ import actions from '@root/api/actions'
 import Chat from '@root/models/Chat'
 import Message from '@root/models/Message'
 import User from '@root/models/User'
+import closeSession from './handlers/closeSession'
+import openSession from './handlers/openSession'
 
+/**
+ * @summary SocketListener
+ */
 class SocketListener {
 
   constructor(io) {
@@ -11,16 +16,25 @@ class SocketListener {
   }
 
   init() {
-    this.io.on('connection', async socket => {
-      console.log(`User joined: ${socket.id}`)
+    /**
+     * Connection event handler
+     */
+    this.io.on('connection', (socket) => {
+      // Create scope for binding functions
+      const scope = { io: this.io, socket }
 
-      try {
-        await actions.update({ sessionId: socket.id, _id: socket.request.user.id }, 'User')
-      } catch (e) {
-        throw new Error(e.message)
-      }
+      /**
+       * Initial actions: set session id and status to online
+       */
+      openSession.call(scope)
 
-      socket.on('send_message', async ({ chat_owner, chat_guest, text }) => {
+      socket.on('change_user_status', (arg) => {
+        openSession.call(scope, arg) 
+      })
+      /**
+       * When user send private message
+       */
+      socket.on('send_message', async ({ chat_owner, chat_guest, text }, callback) => {
         try {
           let chat = await Chat.findOne(
             {
@@ -45,10 +59,20 @@ class SocketListener {
             socket.broadcast.to(destUser.sessionId).emit('chat_message',  message)
           }
         } catch(e) {
-          throw new Error(e.message)
+          callback({ message: e.message })
         }
       })
+
+      /**
+       * User disconnected listener
+       */
+      socket.on('disconnect', closeSession.bind(scope))
+      /**
+       * Set to online after login
+       */
+
     })
+
 
   }
 

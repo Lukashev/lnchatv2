@@ -43,21 +43,17 @@ const SectionHandler = () => {
   // useEffects
   useEffect(() => {
     window.addEventListener('resize', resizeHandler)
+
     const getUser = async () => {
       try {
         const { data } = await api.getUser()
         dispatch({
           payload: {
-            user: data.result
+            user: data.result 
           }
         })
-        // setup socket connection
-        const socket = io('/', {
-          query: `auth_token=${authToken.split(' ')[1]}`
-        })
-        dispatch({ payload: { socket } })
       } catch ({ response }) {
-        if (response.status === 401) {
+        if (response?.status === 401) {
           dispatch({
             payload: { user: null, authToken: null }
           })
@@ -67,16 +63,27 @@ const SectionHandler = () => {
       }
     }
     getUser()
+
     return () => {
       window.removeEventListener('resize', resizeHandler)
     }
   }, []) // eslint-disable-line
 
+
   useEffect(() => {
-    if (socket) {
-      new SocketListener(socket, dispatch, open)
+    if (authToken && user) {
+      const $token = authToken.split(' ')[1]
+      if (!socket) {
+        const socketInstance = io('/', {
+          query: `auth_token=${$token}`
+        })
+        dispatch({ payload: { socket: socketInstance } }) 
+        new SocketListener(socketInstance, dispatch, open)
+        return
+      }
+      socket?.connect({ query: `auth_token=${$token}` })
     }
-  }, [socket]) // eslint-disable-line
+  }, [authToken, user]) // eslint-disable-line
 
   const SectionComponent = sections[activeSection]
 

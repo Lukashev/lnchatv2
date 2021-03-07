@@ -57,4 +57,19 @@ export const StyledSearchItem = styled.div`
       border: 2px solid gray;
     }
   }
+  &.online {
+    & img {
+      border: 2px solid #46d362;;
+    }
+  }
+  &.busy {
+    & img {
+      border: 2px solid #fd2828;;
+    }
+  }
+  &.away {
+    & img {
+      border: 2px solid #f3ba4a;
+    }
+  }
 `

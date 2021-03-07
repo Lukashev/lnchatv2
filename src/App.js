@@ -8,11 +8,16 @@ import './App.css';
 
 const api = new Api()
 
+function $dispatch (cb) {
+  if (!(cb instanceof Function)) return this.dispatch(cb)
+  return cb.call(null, this.state, this.dispatch)
+}
+
 function App() {
   const [state, dispatch] = useReducer(reducer, initialState)
 
   return (
-    <AppContext.Provider value={{ state, dispatch, api }}>
+    <AppContext.Provider value={{ state, dispatch: $dispatch.bind({state, dispatch}), api }}>
       <SnackbarProvider>
         <SectionHandler />
       </SnackbarProvider>
