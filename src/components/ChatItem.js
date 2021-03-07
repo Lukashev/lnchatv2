@@ -31,7 +31,7 @@ const ChatItem = ({
         </div>
         <div className="d-flex justify-content-between">
           <span className="chat-list--msg">
-            {messages.length ? messages[messages.length - 1] : 'Write the first message...'}
+            {messages.length ? messages[messages.length - 1].text : 'Write the first message...'}
         </span>
         </div>
       </div>

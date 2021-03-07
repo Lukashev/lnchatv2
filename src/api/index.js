@@ -19,6 +19,10 @@ class Api {
     return await http.get('/api/me')
   }
 
+  async getChatList() {
+    return await http.get('/api/chats')
+  }
+
   async searchUsers(limit, username) {
     return await http.get('/api/users', {
       params: {
