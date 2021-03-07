@@ -1,8 +1,8 @@
 class SocketListener {
 
-  constructor(socket, dispatch, open) {
+  constructor(socket, store, open) {
     this.triggerSnack = open
-    this.dispatch = dispatch
+    this.store = store
     this.socket = socket
     this.init()
   }
@@ -17,37 +17,40 @@ class SocketListener {
     })
 
     this.socket.on('chat_message', msg => {
-      this.dispatch({ type: 'UPDATE_CHAT_ITEM', payload: { chatId: msg.chat, msg } })
+      //this.dispatch({ type: 'SET_MAIN_STATE', payload: { chatId: msg.chat, msg } })
     })
 
     this.socket.on('user_status', ({ userId, status }) => {
-      this.dispatch((prevState, $dispatch) => {
-        const { user, searchSection } = prevState
-        if (userId === user._id && status !== 'offline') {
-          $dispatch({
-            payload: {
-              user: {
-                ...user,
-                status
-              }
+      const { dispatch, getState } = this.store
+      const { user, searchSection } = getState()
+      if (userId === user._id && status !== 'offline') {
+        dispatch({
+          type: 'SET_MAIN_STATE',
+          payload: {
+            user: {
+              ...user,
+              status
             }
-          })
-        } else {
-          const usrIdx = searchSection.list.findIndex(item => {
-            return item._id === userId
-          })
-          if (usrIdx > -1) {
-            const clonedList = searchSection.list.slice()
-            clonedList[usrIdx].status = status
-            $dispatch({
+          }
+        })
+      } else {
+        const usrIdx = searchSection.list.findIndex(item => {
+          return item._id === userId
+        })
+        if (usrIdx > -1) {
+          const clonedList = searchSection.list.slice()
+          clonedList[usrIdx].status = status
+          dispatch({
+            type: 'SET_MAIN_STATE',
+            payload: {
               searchSection: {
                 ...searchSection,
                 list: clonedList
               }
-            })
-          }
+            }
+          })
         }
-      })
+      }
     })
   }
 

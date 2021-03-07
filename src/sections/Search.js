@@ -1,12 +1,12 @@
-import React, { useContext, useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { uid } from 'uid'
 import debounce from 'lodash/debounce'
 import { Spinner } from 'react-bootstrap'
 import { useSnackbar } from 'react-simple-snackbar'
 import { SpinnerOverlay, StyledSection } from '../styled'
 import SearchInput from '../components/SearchInput'
-import { AppContext } from '../store'
 import SearchItem from '../components/SearchItem'
+import { useDispatch, useSelector } from 'react-redux'
 
 const snackOptions = {
   position: 'bottom-left',
@@ -19,7 +19,8 @@ const snackOptions = {
 const Search = ({ asideHeight, setActiveSection }) => {
   const [loading, setLoading] = useState(false)
   const [open] = useSnackbar(snackOptions)
-  const { api, dispatch, state: { searchSection, chatSection, user }} = useContext(AppContext)
+  const { api, searchSection, chatSection, user } = useSelector(state => state)
+  const dispatch = useDispatch()
 
   useEffect(() => {
     const fn = async () => {
@@ -27,6 +28,7 @@ const Search = ({ asideHeight, setActiveSection }) => {
         setLoading(true)
         const { data } = await api.searchUsers(null, searchSection.value)
         dispatch({
+          type: 'SET_MAIN_STATE',
           payload: {
             searchSection: {
               ...searchSection,
@@ -45,6 +47,7 @@ const Search = ({ asideHeight, setActiveSection }) => {
 
   const handleSearchValue = async (value) => {
     dispatch({
+      type: 'SET_MAIN_STATE',
       payload: {
         searchSection: {
           ...searchSection,
@@ -70,6 +73,7 @@ const Search = ({ asideHeight, setActiveSection }) => {
       messages: []
     }
     dispatch({
+      type: 'SET_MAIN_STATE',
       payload: {
         chatSection: {
           ...chatSection,

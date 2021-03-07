@@ -1,13 +1,13 @@
-import React, { useContext } from 'react'
+import React from 'react'
 import { number, func, arrayOf, shape, string } from 'prop-types'
 import classnames from 'classnames'
-import { AppContext } from '../store'
+import { useDispatch } from 'react-redux'
 
 const Menu = ({ activeSection, setActiveSection, menuItems }) => {
-  const { dispatch } = useContext(AppContext)
+  const dispatch = useDispatch()
 
   const handleClick = id => () => {
-    dispatch({ payload: { activeRoom: null } })
+    dispatch({ type: 'SET_MAIN_STATE', payload: { activeRoom: null } })
     setActiveSection(id)
   }
 

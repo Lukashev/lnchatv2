@@ -1,14 +1,14 @@
-import React, { useContext, useEffect, useCallback, useState } from 'react'
+import React, { useEffect, useCallback, useState } from 'react'
 import { Col, Container, Row } from 'react-bootstrap'
 import cookies from 'react-cookies'
 import { useSnackbar } from 'react-simple-snackbar'
 import { Button } from 'react-bootstrap'
 import { io } from 'socket.io-client'
-import { AppContext } from '../store'
 import sections from '../sections'
 import ProfilePanel from '../components/ProfilePanel'
 import Menu from '../components/Menu'
 import SocketListener from '../stateful'
+import { useDispatch, useSelector, useStore } from 'react-redux'
 
 const snackOptions = {
   position: 'bottom-left',
@@ -20,12 +20,14 @@ const snackOptions = {
 
 const SectionHandler = () => {
   // store
-  const { state: { user, activeRoom, authToken, socket, chatSection }, api, dispatch } = useContext(AppContext)
+  const { user, activeRoom, authToken, socket, chatSection, api } = useSelector(state => state)
+  const dispatch = useDispatch()
   const [open] = useSnackbar(snackOptions)
   const { currentMsg } = chatSection
 
   // local state
   const [activeSection, setActiveSection] = useState(1)
+  const store = useStore()
   const [asideHeight, setAsideHeight] = useState(document.body.scrollHeight - 203)
 
   // callbacks
@@ -37,7 +39,7 @@ const SectionHandler = () => {
   }, []) // eslint-disable-line
 
   const handleMsgChange = ({ target: { value } }) => {
-    dispatch({ payload: { chatSection: { ...chatSection, currentMsg: value } } })
+    dispatch({ type: 'SET_MAIN_STATE', payload: { chatSection: { ...chatSection, currentMsg: value } } })
   }
 
   // useEffects
@@ -48,6 +50,7 @@ const SectionHandler = () => {
       try {
         const { data } = await api.getUser()
         dispatch({
+          type: 'SET_MAIN_STATE',
           payload: {
             user: data.result 
           }
@@ -55,6 +58,7 @@ const SectionHandler = () => {
       } catch ({ response }) {
         if (response?.status === 401) {
           dispatch({
+            type: 'SET_MAIN_STATE',
             payload: { user: null, authToken: null }
           })
           cookies.remove('Authorization')
@@ -77,8 +81,8 @@ const SectionHandler = () => {
         const socketInstance = io('/', {
           query: `auth_token=${$token}`
         })
-        dispatch({ payload: { socket: socketInstance } }) 
-        new SocketListener(socketInstance, dispatch, open)
+        dispatch({  type: 'SET_MAIN_STATE', payload: { socket: socketInstance } }) 
+        new SocketListener(socketInstance, store, open)
         return
       }
       socket?.connect({ query: `auth_token=${$token}` })
@@ -95,7 +99,7 @@ const SectionHandler = () => {
         chat_guest: currentChat.chat_guest._id,
         text: currentMsg
       })
-      dispatch({ payload: { chatSection: { ...chatSection, currentMsg: '' } } })
+      dispatch({ type: 'SET_MAIN_STATE', payload: { chatSection: { ...chatSection, currentMsg: '' } } })
     }
   }
 

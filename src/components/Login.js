@@ -1,10 +1,10 @@
-import React, { useContext, useState } from 'react'
+import React, { useState } from 'react'
 import { useSnackbar } from 'react-simple-snackbar'
 import cookies from 'react-cookies'
 import { StyledLogin } from '../styled'
 import { Button, Card, Col, Container, Form, Row, Spinner, Modal } from 'react-bootstrap'
 import validator from 'validator'
-import { AppContext } from '../store'
+import { useDispatch, useSelector } from 'react-redux'
 
 const { isEmail, isLength, equals } = validator
 
@@ -22,11 +22,12 @@ const Login = ({ modalVisible, handleClose }) => {
   const [loading, setLoading] = useState(false)
   const [open] = useSnackbar(snackOptions)
 
-  const { state, dispatch, api } = useContext(AppContext)
+  const { api, ...state } = useSelector(state => state)
+  const dispatch = useDispatch()
   const { email, username, password, retypePassword } = state.auth
 
   const handleChange = ({ target: { name, value } }) => {
-    dispatch({ payload: { auth: { ...state.auth, [name]: value } } })
+    dispatch({ type: 'SET_MAIN_STATE', payload: { auth: { ...state.auth, [name]: value } } })
   }
 
   const onSubmit = async e => {
@@ -50,7 +51,7 @@ const Login = ({ modalVisible, handleClose }) => {
       const { data } = await api[formType](state.auth)
       if (formType === 'login') {
         handleClose()
-        dispatch({ payload: { user: data.result, authToken: `Bearer ${data.token}` } })
+        dispatch({type: 'SET_MAIN_STATE', payload: { user: data.result, authToken: `Bearer ${data.token}` } })
         cookies.save('Authorization', `Bearer ${data.token}`)
       } else {
         setFormType('login')

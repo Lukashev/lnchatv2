@@ -4,16 +4,19 @@ import { oneOf, string } from 'prop-types'
 import { ListGroup } from 'react-bootstrap'
 import { AppContext } from '../store'
 import Login from './Login'
+import { useDispatch, useSelector } from 'react-redux'
 
 const defaultAvatar = 'assets/images/default-avatar.jpg'
 
 const ProfilePanel = ({ username = 'Anonymous', avatar, status }) => {
   const [listVisible, setListVisible] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
-  const { state, dispatch } = useContext(AppContext)
+  const state = useSelector(state => state)
+  const dispatch = useDispatch()
 
   const handleLogout = () => {
     dispatch({
+      type: 'SET_MAIN_STATE',
       payload: {
         user: null,
         authToken: null

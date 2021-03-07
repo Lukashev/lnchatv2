@@ -1,13 +1,14 @@
-import React, { useContext } from 'react'
+import React from 'react'
+import { useDispatch, useSelector } from 'react-redux'
 import ChatItem from '../components/ChatItem'
-import { AppContext } from '../store'
 
 const Chat = () => {
-  const { state: { chatSection, activeRoom }, dispatch } = useContext(AppContext)
+  const { chatSection, activeRoom } = useSelector(state => state)
+  const dispatch = useDispatch() 
   const chatList = chatSection.list
 
   const setActiveRoom = (id) => {
-    dispatch({ payload: { activeRoom: id }})
+    dispatch({  type: 'SET_MAIN_STATE', payload: { activeRoom: id }})
   }
 
   return (
