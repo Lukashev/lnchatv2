@@ -1,3 +1,4 @@
+import clone from 'lodash/clone'
 class SocketListener {
 
   constructor(socket, store, open) {
@@ -21,7 +22,12 @@ class SocketListener {
       const { chatSection } = getState()
       const { list } = chatSection
 
-      const chatIdx = list.findIndex(c => c._id === msg.chat)
+      const chatIdx = list.findIndex(c => c._id === msg.chat ||
+        (
+          (c.chat_owner._id === msg.from && c.chat_guest._id === msg.to) ||
+          (c.chat_guest._id === msg.from && c.chat_owner._id === msg.to)
+        )
+      )
       const clonedList = list.slice()
       if (chatIdx > -1) {
         clonedList[chatIdx].messages.push(msg)
@@ -37,7 +43,7 @@ class SocketListener {
 
     this.socket.on('user_status', ({ userId, status }) => {
       const { dispatch, getState } = this.store
-      const { user, searchSection } = getState()
+      const { user, searchSection, chatSection } = getState()
       if (userId === user._id && status !== 'offline') {
         dispatch({
           type: 'SET_MAIN_STATE',
@@ -52,8 +58,33 @@ class SocketListener {
         const usrIdx = searchSection.list.findIndex(item => {
           return item._id === userId
         })
+        const chatIdx = chatSection.list.findIndex(c => {
+          return c.chat_guest._id === userId || c.chat_owner._id === userId
+        })
+
+        let clonedChatList = clone(chatSection.list)
+
+        if (chatIdx > - 1) {
+          const currentChat = clonedChatList[chatIdx]
+          clonedChatList[chatIdx][
+            currentChat.chat_guest._id === userId 
+              ? 'chat_guest'
+              : 'chat_owner'
+          ].status = status 
+
+          dispatch({
+            type: 'SET_MAIN_STATE',
+            payload: {
+              chatSection: {
+                ...chatSection,
+                list: clonedChatList
+              }
+            }
+          })
+        }
+
         if (usrIdx > -1) {
-          const clonedList = searchSection.list.slice()
+          const clonedList = clone(searchSection.list)
           clonedList[usrIdx].status = status
           dispatch({
             type: 'SET_MAIN_STATE',
