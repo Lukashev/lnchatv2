@@ -59,3 +59,8 @@ aside .chat-list {
   z-index: 0;
   height: 100%;
 }
+
+.scrollable-feed {
+  overflow-x: hidden;
+  padding-right: 30px;
+}

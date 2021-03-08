@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react'
+import ScrollableFeed from 'react-scrollable-feed'
 import { Col, Container, Row } from 'react-bootstrap'
 import moment from 'moment'
 import groupBy from 'lodash/groupBy'
@@ -100,13 +101,6 @@ const SectionHandler = () => {
     const currentChat = chatSection.list.find(item => item._id === activeRoom)
     if (currentChat) {
       const { chat_guest, chat_owner } = currentChat
-      console.log(
-        {
-          from: user._id,
-          to: chat_owner._id === user._id ? chat_guest._id : chat_owner._id,
-          text: currentMsg
-        }
-      )
       socket.emit('send_message', {
         from: user._id,
         to: chat_owner._id === user._id ? chat_guest._id : chat_owner._id,
@@ -145,17 +139,21 @@ const SectionHandler = () => {
           </section>
           <div className="d-flex flex-column justify-content-end" style={{ height: `${asideHeight + 120}px` }}>
             <section className="messages d-flex flex-column">
-              {msgSections && user && (
-                <>
-                  {Object.keys(msgSections).map(date => {
-                    return <MessageSection key={date} date={date}>
-                      {msgSections[date].map(msg => (
-                        <MessageItem key={msg._id} {...msg} authorId={user._id} />
-                      ))}
-                    </MessageSection>
-                  })}
-                </>
-              )}
+              <ScrollableFeed 
+              forceScroll
+              className="scrollable-feed">
+                {msgSections && user && (
+                  <>
+                    {Object.keys(msgSections).map(date => {
+                      return <MessageSection key={date} date={date}>
+                        {msgSections[date].map(msg => (
+                          <MessageItem key={msg._id} {...msg} authorId={user._id} />
+                        ))}
+                      </MessageSection>
+                    })}
+                  </>
+                )}
+              </ScrollableFeed>
             </section>
             <section className="toolbar d-flex">
               <div className="toolbar-items d-flex">

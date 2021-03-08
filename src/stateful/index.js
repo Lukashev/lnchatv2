@@ -1,4 +1,6 @@
 import clone from 'lodash/clone'
+
+const notificationAudio = new Audio('assets/audio/notification.mp3')
 class SocketListener {
 
   constructor(socket, store, open) {
@@ -20,8 +22,13 @@ class SocketListener {
     this.socket.on('chat_message', ({ message: msg, chat}) => {
 
       const { getState, dispatch } = this.store
-      const { chatSection } = getState()
+      const { chatSection, user } = getState()
       const { list } = chatSection
+
+      console.log(msg.to, user._id)
+      if (msg.to === user._id) {
+        notificationAudio.play()
+      }
 
       const chatIdx = list.findIndex(c => c._id === msg.chat ||
         (
