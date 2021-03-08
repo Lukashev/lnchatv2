@@ -25,7 +25,6 @@ class SocketListener {
       const { chatSection, user } = getState()
       const { list } = chatSection
 
-      console.log(msg.to, user._id)
       if (msg.to === user._id) {
         notificationAudio.play()
       }
