@@ -35,7 +35,6 @@ class SocketListener {
        * When user send private message
        */
       socket.on('send_message', async ({ from, to, text }) => {
-        console.log(from, to, text)
         try {
           let chat = await Chat.findOne(
             {
@@ -46,7 +45,7 @@ class SocketListener {
             }
           )
           if (!chat) {
-            chat = await Chat.create({ chat_guest: to, chat_owner: from })
+            chat = await Chat.create({ chat_guest: to, chat_owner: from },)
           }
           const message = await Message.create({
             chat: chat._id,
@@ -55,9 +54,12 @@ class SocketListener {
             text
           })
           const destUser = await User.findById(message.to)
-          socket.emit('chat_message', message)
+
+          chat = await chat.populate('chat_owner chat_guest').execPopulate()
+          
+          socket.emit('chat_message',  {message: { ...message._doc }, chat: { ...chat._doc }})
           if (destUser.sessionId) {
-            socket.broadcast.to(destUser.sessionId).emit('chat_message', message)
+            socket.broadcast.to(destUser.sessionId).emit('chat_message', {message: { ...message._doc }, chat: { ...chat._doc }})
           }
         } catch (e) {
           throw new Error(e)

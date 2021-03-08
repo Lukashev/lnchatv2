@@ -17,7 +17,8 @@ class SocketListener {
       this.triggerSnack(String(e), 2000)
     })
 
-    this.socket.on('chat_message', msg => {
+    this.socket.on('chat_message', ({ message: msg, chat}) => {
+
       const { getState, dispatch } = this.store
       const { chatSection } = getState()
       const { list } = chatSection
@@ -28,14 +29,26 @@ class SocketListener {
           (c.chat_guest._id === msg.from && c.chat_owner._id === msg.to)
         )
       )
-      const clonedList = list.slice()
+      const clonedList = clone(list)
       if (chatIdx > -1) {
         clonedList[chatIdx].messages.push(msg)
         dispatch({
           type: 'SET_MAIN_STATE',
           payload: {
-            ...chatSection,
-            list: clonedList
+            chatSection: {
+              ...chatSection,
+              list: clonedList
+            }
+          }
+        })
+      } else {
+        dispatch({
+          type: 'SET_MAIN_STATE',
+          payload: {
+            chatSection: {
+              ...chatSection,
+              list: [...clonedList, { ...chat, messages: [msg] }]
+            }
           }
         })
       }
