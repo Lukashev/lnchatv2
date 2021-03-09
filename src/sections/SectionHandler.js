@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react'
+import CryptoJS from 'crypto-js'
 import ScrollableFeed from 'react-scrollable-feed'
 import { Col, Container, Row } from 'react-bootstrap'
 import moment from 'moment'
@@ -101,10 +102,11 @@ const SectionHandler = () => {
     const currentChat = chatSection.list.find(item => item._id === activeRoom)
     if (currentChat) {
       const { chat_guest, chat_owner } = currentChat
+      const cipherMsg = CryptoJS.AES.encrypt(currentMsg, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString()
       socket.emit('send_message', {
         from: user._id,
         to: chat_owner._id === user._id ? chat_guest._id : chat_owner._id,
-        text: currentMsg
+        text: cipherMsg
       })
       dispatch({ type: 'SET_MAIN_STATE', payload: { chatSection: { ...chatSection, currentMsg: '' } } })
     }
@@ -139,7 +141,7 @@ const SectionHandler = () => {
           </section>
           <div className="d-flex flex-column justify-content-end" style={{ height: `${asideHeight + 120}px` }}>
             <section className="messages d-flex flex-column">
-              <ScrollableFeed 
+              <ScrollableFeed
               forceScroll
               className="scrollable-feed">
                 {msgSections && user && (

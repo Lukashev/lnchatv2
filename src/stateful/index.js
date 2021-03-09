@@ -1,4 +1,5 @@
 import clone from 'lodash/clone'
+import CryptoJS from 'crypto-js'
 
 const notificationAudio = new Audio('assets/audio/notification.mp3')
 class SocketListener {
@@ -20,6 +21,8 @@ class SocketListener {
     })
 
     this.socket.on('chat_message', ({ message: msg, chat}) => {
+
+      msg.text = CryptoJS.AES.decrypt(msg.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
 
       const { getState, dispatch } = this.store
       const { chatSection, user } = getState()
@@ -86,10 +89,10 @@ class SocketListener {
         if (chatIdx > - 1) {
           const currentChat = clonedChatList[chatIdx]
           clonedChatList[chatIdx][
-            currentChat.chat_guest._id === userId 
+            currentChat.chat_guest._id === userId
               ? 'chat_guest'
               : 'chat_owner'
-          ].status = status 
+          ].status = status
 
           dispatch({
             type: 'SET_MAIN_STATE',

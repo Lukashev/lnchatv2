@@ -1,4 +1,5 @@
 import React, { useEffect } from 'react'
+import CryptoJS from 'crypto-js'
 import { useDispatch, useSelector } from 'react-redux'
 import { useSnackbar } from 'react-simple-snackbar'
 import ChatItem from '../components/ChatItem'
@@ -21,7 +22,15 @@ const Chat = () => {
         const list = chats.map(c => {
           return {
             ...c,
-            messages: messages.filter(m => m.chat === c._id)
+            messages: messages
+            .map(m => {
+              const decryptedMsg = CryptoJS.AES.decrypt(m.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
+              return {
+                ...m,
+                text: decryptedMsg
+              }
+            })
+            .filter(m => m.chat === c._id)
           }
         })
         const { newChat } = searchSection
