@@ -19,7 +19,7 @@ app.use(bodyParser.json())
 app.use(cookieParser())
 app.use(express.static(__dirname + '/build'))
 
-app.use(logger('dev'))
+app.use(logger('dev', { skip: () => process.env.NODE_ENV === 'production' }))
 app.use('/api', apiRouter)
 app.use('*', (req, res) => {
   res.sendFile(`${__dirname}/build/index.html`)
