@@ -4,7 +4,9 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "nodemon --exec babel-node ."
+    "start": "node dist/index.js",
+    "dev": "nodemon --exec babel-node .",
+    "build": "babel . --out-dir dist --source-maps inline --ignore node_modules && cp ./config/production.yml ./dist/config"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +26,7 @@
     "socketio-jwt-auth": "^0.2.1"
   },
   "devDependencies": {
+    "@babel/cli": "^7.13.10",
     "@babel/core": "^7.13.8",
     "@babel/node": "^7.13.0",
     "@babel/preset-env": "^7.13.9",
