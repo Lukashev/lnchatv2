@@ -18,6 +18,7 @@ const ProfileEditor = ({
 }) => {
 
   const { user, api } = useSelector(state => state)
+  const dispatch = useDispatch()
   const [{ username, avatar, email, _id }, setUser] = useState(user)
   const [file, setFile] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -47,10 +48,16 @@ const ProfileEditor = ({
         formData.append(key, payload[key])
       }
       const { data } = await api.updateUser(formData)
-      setUser(prevState => ({
-        ...prevState,
-        ...data.result
-      }))
+      dispatch({
+        type: 'SET_MAIN_STATE',
+        payload: {
+          user: {
+            ...user,
+            ...data.result
+          }
+        }
+      })
+      handleClose()
       open(`${data.message}. NOTE: Google cache changed images!`, 2000)
     } catch ({ response }) {
       open(String(response?.data), 2000)
