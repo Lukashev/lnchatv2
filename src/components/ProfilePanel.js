@@ -18,15 +18,26 @@ const ProfilePanel = ({ username = 'Anonymous', avatar, status }) => {
       type: 'SET_MAIN_STATE',
       payload: {
         user: null,
-        authToken: null
+        authToken: null,
+        activeRoom: null
       }
     })
     cookies.remove('Authorization')
     state.socket?.disconnect()
   }
 
+  const handleCloseDialog = () => {
+    dispatch({
+      type: 'SET_MAIN_STATE',
+      payload: {
+        activeRoom: null
+      }
+    })
+  }
+
   return (
     <div className='profile-panel d-flex justify-content-between align-items-center'>
+      {state.activeRoom && <i className='fas fa-2x fa-backward' onClick={handleCloseDialog}></i>}
       <img src={avatar || defaultAvatar} alt='' className={`profile-panel--avatar ${status}`} />
       <div className='d-flex flex-column justify-content-center'>
         <h4 className='profile-panel--name mb-0'>{username}</h4>

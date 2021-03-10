@@ -1,4 +1,5 @@
 import React, { useEffect, useCallback, useState } from 'react'
+import { useMediaQuery } from 'react-responsive'
 import CryptoJS from 'crypto-js'
 import ScrollableFeed from 'react-scrollable-feed'
 import { Col, Container, Row } from 'react-bootstrap'
@@ -16,6 +17,7 @@ import SocketListener from '../stateful'
 import { useDispatch, useSelector, useStore } from 'react-redux'
 import MessageItem from '../components/MessageItem'
 import MessageSection from '../components/MessageSection'
+import classNames from 'classnames'
 
 const snackOptions = {
   position: 'bottom-left',
@@ -32,14 +34,18 @@ const SectionHandler = () => {
   const [open] = useSnackbar(snackOptions)
   const { currentMsg } = chatSection
 
+  // check device
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 768px)' })
+  const smallDevice = useMediaQuery({ query: '(max-width: 420px)' })
+
   // local state
   const [activeSection, setActiveSection] = useState(1)
   const store = useStore()
-  const [asideHeight, setAsideHeight] = useState(document.body.scrollHeight - 203)
+  const [asideHeight, setAsideHeight] = useState(window.innerHeight - 203)
 
   // callbacks
   const resizeHandler = useCallback((e) => {
-    const asideValue = document.body.scrollHeight
+    const asideValue = window.innerHeight
     if (asideValue !== asideHeight) {
       setAsideHeight(asideValue - 203)
     }
@@ -100,6 +106,9 @@ const SectionHandler = () => {
 
   const handleSendMsg = () => {
     const currentChat = chatSection.list.find(item => item._id === activeRoom)
+    if (currentMsg === '') {
+      return open('Message field is required!')
+    }
     if (currentChat) {
       const { chat_guest, chat_owner } = currentChat
       const cipherMsg = CryptoJS.AES.encrypt(currentMsg, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString()
@@ -112,72 +121,90 @@ const SectionHandler = () => {
     }
   }
 
+  const handleKeyPress = ({ key }) => {
+    if (key === 'Enter') {
+      handleSendMsg()
+    }
+  }
+
   const room = activeRoom && chatSection.list.find(c => {
     return c._id === activeRoom
   })
   const sortedMsgs = sortBy(room?.messages, m => m.created_at)
   const msgSections = groupBy(sortedMsgs || [], msg => moment(msg.created_at).format('LL'))
 
+  const dialogContainer = (
+    <Col as='main' md={8}>
+      <section className="section-switcher mt-2 mb-2 d-flex">
+        <button className="btn mr-2">Chat</button>
+        <button className="btn" disabled>Media</button>
+      </section>
+      <div className="d-flex flex-column justify-content-end" style={{ height: `${asideHeight + (isTabletOrMobile ? 40 : 120)}px` }}>
+        <section className="messages d-flex flex-column" style={{ padding: isTabletOrMobile ? 0 : 'initial' }}>
+          <ScrollableFeed
+            forceScroll
+            className="scrollable-feed">
+            {msgSections && user && (
+              <>
+                {Object.keys(msgSections).map(date => {
+                  return <MessageSection key={date} date={date}>
+                    {msgSections[date].map(msg => (
+                      <MessageItem key={msg._id} {...msg} authorId={user._id} />
+                    ))}
+                  </MessageSection>
+                })}
+              </>
+            )}
+          </ScrollableFeed>
+        </section>
+        <section className="toolbar d-flex">
+          <div className="toolbar-items d-flex">
+            <button className="btn toolbar-items--attach" disabled>
+              <i className="fas fa-paperclip fa-lg"></i>
+            </button>
+            <button className="btn toolbar-items--audio" disabled>
+              <i className="fas fa-microphone fa-lg"></i>
+            </button>
+          </div>
+          <input type="text" onKeyPress={handleKeyPress} onChange={handleMsgChange} value={currentMsg} className="w-100" placeholder="Type a new message" />
+          <Button
+            className="toolbar--send-btn"
+            disabled={!!!(user && (activeRoom !== null))}
+            onClick={handleSendMsg}
+          >
+            {!smallDevice && 'Send'}
+                <i className="fas fa-paper-plane fa-lg"></i>
+          </Button>
+        </section>
+      </div>
+    </Col>
+  )
+
+  const asideMenu = (
+    <Menu
+      setActiveSection={setActiveSection}
+      activeSection={activeSection} />
+  )
+
   return (
     <Container fluid>
-      <Row>
-        <Col as='aside' md={4}>
+      <Row style={{ margin: isTabletOrMobile ? 0 : 'initial' }}>
+        <Col as='aside' md={4} className={classNames({ 'pr-0 pl-0': isTabletOrMobile })}>
           <div className='d-flex flex-column'>
             <ProfilePanel {...user} />
-            <div className='chat-list d-flex flex-column' style={{ maxHeight: `${asideHeight}px` }}>
-              {user
-                ? <SectionComponent setActiveSection={setActiveSection} asideHeight={asideHeight} />
-                : 'Please, login to account...'}
-            </div>
-            <Menu
-              setActiveSection={setActiveSection}
-              activeSection={activeSection} />
+            {activeRoom && isTabletOrMobile
+              ? dialogContainer : (
+                <div className='chat-list d-flex flex-column' style={{ maxHeight: `${asideHeight + (isTabletOrMobile ? 30 : 0)}px` }}>
+                  {user
+                    ? <SectionComponent setActiveSection={setActiveSection} asideHeight={asideHeight} />
+                    : 'Please, login to account...'}
+                </div>
+              )}
+            {!activeRoom && isTabletOrMobile && asideMenu}
+            {!isTabletOrMobile && asideMenu}
           </div>
         </Col>
-        <Col as='main' md={8}>
-          <section className="section-switcher mt-2 d-flex">
-            <button className="btn mr-2">Chat</button>
-            <button className="btn" disabled>Media</button>
-          </section>
-          <div className="d-flex flex-column justify-content-end" style={{ height: `${asideHeight + 120}px` }}>
-            <section className="messages d-flex flex-column">
-              <ScrollableFeed
-              forceScroll
-              className="scrollable-feed">
-                {msgSections && user && (
-                  <>
-                    {Object.keys(msgSections).map(date => {
-                      return <MessageSection key={date} date={date}>
-                        {msgSections[date].map(msg => (
-                          <MessageItem key={msg._id} {...msg} authorId={user._id} />
-                        ))}
-                      </MessageSection>
-                    })}
-                  </>
-                )}
-              </ScrollableFeed>
-            </section>
-            <section className="toolbar d-flex">
-              <div className="toolbar-items d-flex">
-                <button className="btn toolbar-items--attach" disabled>
-                  <i className="fas fa-paperclip fa-lg"></i>
-                </button>
-                <button className="btn toolbar-items--audio" disabled>
-                  <i className="fas fa-microphone fa-lg"></i>
-                </button>
-              </div>
-              <input type="text" onChange={handleMsgChange} value={currentMsg} className="w-100" placeholder="Type a new message" />
-              <Button
-                className="toolbar--send-btn"
-                disabled={!!!(user && (activeRoom !== null))}
-                onClick={handleSendMsg}
-              >
-                Send
-                <i className="fas fa-paper-plane fa-lg"></i>
-              </Button>
-            </section>
-          </div>
-        </Col>
+        {!isTabletOrMobile && dialogContainer}
       </Row>
     </Container>
   )
