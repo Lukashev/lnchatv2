@@ -2,6 +2,10 @@
   margin: auto;
 }
 
+.container-fluid {
+  max-width: 1649px;
+}
+
 #root {
   height: 100%;
 }
@@ -64,3 +68,49 @@ aside .chat-list {
   overflow-x: hidden;
   padding-right: 30px;
 }
+
+.fa-backward {
+  display: none;
+  color: #f3ba4a;
+  padding-right: 20px;
+}
+
+@media screen and (max-width: 420px) {
+  main.col-md-8 {
+    padding: 0;
+  }
+  .scrollable-feed {
+    padding-right: 0;
+  }
+  .toolbar input::placeholder {
+    font-size: .8em;
+  }
+  .toolbar input {
+    font-size: .8em;
+  }
+  .toolbar--send-btn {
+    min-width: auto;
+  }
+  .toolbar input {
+    padding-right: 65px;
+  }
+  .toolbar--send-btn i {
+    padding-right: 5px;
+  }
+}
+
+@media screen and (max-width: 768px) {
+  body {
+    overflow-y: hidden;
+  }
+  .toolbar-items i {
+    font-size: 16px;
+  }
+  .toolbar-items > button {
+    padding: 0 10px;
+  }
+  .profile-panel .fa-backward {
+    display: block;
+  }
+}
+
