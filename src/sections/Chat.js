@@ -23,14 +23,14 @@ const Chat = () => {
           return {
             ...c,
             messages: messages
-            .map(m => {
-              const decryptedMsg = CryptoJS.AES.decrypt(m.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
-              return {
-                ...m,
-                text: decryptedMsg
-              }
-            })
-            .filter(m => m.chat === c._id)
+              .map(m => {
+                const decryptedMsg = CryptoJS.AES.decrypt(m.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
+                return {
+                  ...m,
+                  text: JSON.parse(decryptedMsg)
+                }
+              })
+              .filter(m => m.chat === c._id)
           }
         })
         const { newChat } = searchSection

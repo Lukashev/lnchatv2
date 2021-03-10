@@ -37,7 +37,7 @@
     "eject": "react-scripts eject",
     "install-all": "npm install && cd server && npm install",
     "heroku-prebuild": "cd server && npm install",
-    "heroku-postbuild": "./bin/build.sh"  
+    "heroku-postbuild": "./bin/build.sh"
   },
   "eslintConfig": {
     "extends": [

@@ -111,7 +111,7 @@ const SectionHandler = () => {
     }
     if (currentChat) {
       const { chat_guest, chat_owner } = currentChat
-      const cipherMsg = CryptoJS.AES.encrypt(currentMsg, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString()
+      const cipherMsg = CryptoJS.AES.encrypt(JSON.stringify(currentMsg), process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString()
       socket.emit('send_message', {
         from: user._id,
         to: chat_owner._id === user._id ? chat_guest._id : chat_owner._id,
@@ -173,7 +173,7 @@ const SectionHandler = () => {
             onClick={handleSendMsg}
           >
             {!smallDevice && 'Send'}
-                <i className="fas fa-paper-plane fa-lg"></i>
+            <i className="fas fa-paper-plane fa-lg"></i>
           </Button>
         </section>
       </div>

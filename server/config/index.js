@@ -5,5 +5,7 @@ const config = configYaml(`${__dirname}/${process.env.NODE_ENV === 'production' 
 
 export default {
   JWT_SECRET: config.JWT_SECRET,
-  DB_URL: config.DB_URL
+  DB_URL: config.DB_URL,
+  BUCKET_NAME: config.BUCKET_NAME,
+  GCLOUD_PROJECT_ID: config.GCLOUD_PROJECT_ID
 }

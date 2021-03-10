@@ -76,3 +76,18 @@ export const StyledSearchItem = styled.div`
     min-width: 220px;
   }
 `
+
+export const StyledEditor = styled(Modal)`
+  & * {
+    height: auto;
+    font-size: 14px;
+  }
+  & img {
+    display: block;
+    margin: 15px auto;
+    border: 1px solid;
+  }
+  & .modal-dialog {
+    position: relative;
+  }
+`

@@ -20,9 +20,9 @@ class SocketListener {
       this.triggerSnack(String(e), 2000)
     })
 
-    this.socket.on('chat_message', ({ message: msg, chat}) => {
+    this.socket.on('chat_message', ({ message: msg, chat }) => {
 
-      msg.text = CryptoJS.AES.decrypt(msg.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
+      msg.text = JSON.parse(CryptoJS.AES.decrypt(msg.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8))
 
       const { getState, dispatch } = this.store
       const { chatSection, user } = getState()

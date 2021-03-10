@@ -1,2 +1,4 @@
 DB_URL: 'mongodb+srv://Lukashev:912YFacBD8QJgLPR@cluster0.aj3ml.mongodb.net/myFirstDatabase?retryWrites=true&w=majority'
 JWT_SECRET: 'TnPtxUFmYDd1uprSEiqJIjXtAUhbIFWq'
+BUCKET_NAME: 'lnchat-bucket'
+GCLOUD_PROJECT_ID: 'lnchat-307206'

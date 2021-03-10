@@ -32,6 +32,15 @@ class Api {
     })
   }
 
+  async updateUser(formData) {
+    const config = {
+      headers: {
+        'content-type': 'multipart/form-data'
+      }
+    }
+    return await http.post('/api/user', formData, config)
+  }
+
 }
 
 export default Api

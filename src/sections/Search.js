@@ -59,8 +59,10 @@ const Search = ({ asideHeight, setActiveSection }) => {
 
   const handleStartChat = (guest) => {
     const found = chatSection.list.find(item => {
-      return item.chat_guest._id === guest._id &&
-        item.chat_owner._id === user._id
+      return (item.chat_guest._id === guest._id &&
+        item.chat_owner._id === user._id) ||
+        (item.chat_guest._id === user._id &&
+          item.chat_owner._id === guest._id)
     })
     if (found) {
       open('Chat have already exists', 2000)

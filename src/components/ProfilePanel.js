@@ -4,12 +4,14 @@ import { oneOf, string } from 'prop-types'
 import { ListGroup } from 'react-bootstrap'
 import Login from './Login'
 import { useDispatch, useSelector } from 'react-redux'
+import ProfileEditor from './ProfileEditor'
 
 const defaultAvatar = 'assets/images/default-avatar.jpg'
 
 const ProfilePanel = ({ username = 'Anonymous', avatar, status }) => {
   const [listVisible, setListVisible] = useState(false)
   const [modalVisible, setModalVisible] = useState(false)
+  const [editorVisible, setEditorVisible] = useState(false)
   const state = useSelector(state => state)
   const dispatch = useDispatch()
 
@@ -49,6 +51,10 @@ const ProfilePanel = ({ username = 'Anonymous', avatar, status }) => {
           </span>
         </div>
       </div>
+      {state.user && <ProfileEditor
+        modalVisible={editorVisible}
+        handleClose={() => setEditorVisible(false)}
+      />}
       <Login modalVisible={modalVisible} handleClose={() => setModalVisible(false)} />
       <span className='menu-btn' onClick={() => setListVisible(prev => !prev)}>
         <span className='menu-btn--item'></span>
@@ -57,7 +63,7 @@ const ProfilePanel = ({ username = 'Anonymous', avatar, status }) => {
         {listVisible && <ListGroup className='profile-panel--action-list'>
           {state.user ? (
             <>
-              <ListGroup.Item>Edit Profile</ListGroup.Item>
+              <ListGroup.Item onClick={() => setEditorVisible(true)}>Edit Profile</ListGroup.Item>
               <ListGroup.Item onClick={handleLogout}>Logout</ListGroup.Item>
             </>
           ) : (

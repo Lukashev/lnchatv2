@@ -4,6 +4,7 @@ import getMe from './getMe'
 import searchUsers from './searchUsers'
 import update from './update'
 import getChatList from './getChatList'
+import updateUser from './updateUser'
 
 export default {
   login,
@@ -11,5 +12,6 @@ export default {
   getMe,
   searchUsers,
   update,
-  getChatList
+  getChatList,
+  updateUser
 }
