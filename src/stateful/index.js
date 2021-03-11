@@ -122,6 +122,39 @@ class SocketListener {
         }
       }
     })
+
+    this.socket.on('user_update', (updatedUser) => {
+      const { _id: userId } = updatedUser
+      const { getState, dispatch } = this.store
+      const { chatSection, searchSection } = getState()
+      const chatList = clone(chatSection.list), searchList = clone(searchSection.list)
+
+      const chatIdx = chatList.findIndex(c => c.chat_owner._id === userId || c.chat_guest._id === userId)
+      const srchIdx = searchList.findIndex(u => u._id === userId)
+
+      if (chatIdx > -1) {
+        chatList[chatIdx][chatList[chatIdx].chat_owner._id === userId ? 'chat_owner' : 'chat_guest'] = updatedUser
+      }
+      if (srchIdx > -1) {
+        searchList[srchIdx] = updatedUser
+      }
+
+      dispatch({
+        type: 'SET_MAIN_STATE',
+        payload: {
+          chatSection: {
+            ...chatSection,
+            list: chatList
+          },
+          searchSection: {
+            ...searchSection,
+            list: searchList
+          }
+        }
+      })
+
+    })
+
   }
 
 }

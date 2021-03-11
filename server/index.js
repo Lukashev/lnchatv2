@@ -27,7 +27,7 @@ app.use('*', (req, res) => {
 
 io.use(socketAuth())
 
-new SocketListener(io)
+export const socketListener = new SocketListener(io)
 
 server.listen(process.env.PORT || 5000, () => {
   console.log('Server is running')

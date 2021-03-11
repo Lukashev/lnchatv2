@@ -1,7 +1,8 @@
 import User from '@root/models/User'
-import path, { basename } from 'path'
+import path from 'path'
 import { uploadImage, deleteFile } from '@root/gs'
 import update from './update'
+import { socketListener } from '@root'
 
 export default async function (req) {
   const { email, username, _id } = req.body
@@ -19,12 +20,15 @@ export default async function (req) {
       }
       imageUrl = await uploadImage(avatarFile, 'avatars', userId)
     }
+    const avatarPayload = imageUrl ? { avatar: imageUrl  } : {}
     const updatedUser = await update({
       username,
       email,
       _id,
-      avatar: imageUrl
-    }, 'User')
+      ...avatarPayload
+    }, 'User', { password: 0 })
+    // broadcast updated user info to all users
+    socketListener.io.emit('user_update', updatedUser)
 
     return updatedUser
   } catch (e) {

@@ -6,7 +6,7 @@
   "scripts": {
     "start": "export NODE_ENV=production && node dist/index.js",
     "dev": "nodemon --exec babel-node .",
-    "build": "babel . --out-dir dist --source-maps inline --ignore node_modules && cp ./config/production.yml ./dist/config"
+    "build": "babel . --out-dir dist --source-maps inline --ignore node_modules && cp ./config/production.yml ./dist/config && cp ./config/credentials.json ./dist/config"
   },
   "keywords": [],
   "author": "",
