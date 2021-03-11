@@ -1,4 +1,3 @@
-import actions from '@root/api/actions'
 import Chat from '@root/models/Chat'
 import Message from '@root/models/Message'
 import User from '@root/models/User'
@@ -45,7 +44,7 @@ class SocketListener {
             }
           )
           if (!chat) {
-            chat = await Chat.create({ chat_guest: to, chat_owner: from },)
+            chat = await Chat.create({ chat_guest: to, chat_owner: from })
           }
           const message = await Message.create({
             chat: chat._id,
@@ -56,10 +55,23 @@ class SocketListener {
           const destUser = await User.findById(message.to)
 
           chat = await chat.populate('chat_owner chat_guest').execPopulate()
-          
-          socket.emit('chat_message',  {message: { ...message._doc }, chat: { ...chat._doc }})
+
+          socket.emit('chat_message', { message: { ...message._doc }, chat: { ...chat._doc } })
           if (destUser.sessionId) {
-            socket.broadcast.to(destUser.sessionId).emit('chat_message', {message: { ...message._doc }, chat: { ...chat._doc }})
+            socket.broadcast.to(destUser.sessionId).emit('chat_message', { message: { ...message._doc }, chat: { ...chat._doc } })
+          }
+        } catch (e) {
+          throw new Error(e)
+        }
+      })
+
+      socket.on('message_read', async ({ chat, to, from }) => {
+        try {
+          const fromUser = await User.findById(from)
+          const readMsgList = await Message.find({ chat, from, to, unread: true })
+          await Message.update({ unread: true, to, chat }, { $set: { unread: false } }, { multi: true })
+          if (fromUser.sessionId) {
+            socket.broadcast.to(fromUser.sessionId).emit('message_read', { from, chat, msgIds: readMsgList.map(m => m._id) })
           }
         } catch (e) {
           throw new Error(e)

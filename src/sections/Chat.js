@@ -5,13 +5,20 @@ import { useSnackbar } from 'react-simple-snackbar'
 import ChatItem from '../components/ChatItem'
 
 const Chat = () => {
-  const { chatSection, activeRoom, api, searchSection, user } = useSelector(state => state)
+  const { chatSection, activeRoom, api, searchSection, user, socket } = useSelector(state => state)
   const [open] = useSnackbar()
   const dispatch = useDispatch()
   const chatList = chatSection.list
 
   const setActiveRoom = (id) => {
     dispatch({ type: 'SET_MAIN_STATE', payload: { activeRoom: id } })
+    const currentChat = chatSection.list.find(c => c._id === id)
+    if (currentChat) {
+      const fromUserId = currentChat.chat_owner._id !== user._id
+        ? currentChat.chat_owner._id
+        : currentChat.chat_guest._id
+      socket.emit('message_read', { chat: id, from: fromUserId, to: user._id })
+    }
   }
 
   useEffect(() => {

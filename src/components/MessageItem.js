@@ -4,7 +4,7 @@ import moment from 'moment'
 import { string } from 'prop-types'
 import { isEqual } from 'lodash'
 
-const MessageItem = ({ text, created_at, from, authorId }) => {
+const MessageItem = ({ text, created_at, from, authorId, unread }) => {
   const identity = authorId === from ? 'to' : 'from'
   // check device
   const isTabletOrMobile = useMediaQuery({ query: '(max-width: 768px)' })
@@ -16,7 +16,15 @@ const MessageItem = ({ text, created_at, from, authorId }) => {
       <div className='inner' style={{ [mobilePaddingStyle]: isTabletOrMobile ? smallDevice ? 20 : 100 : 'initial' }}>
         <div className={`messages-item--${identity}-item d-flex flex-column`}>
           <span>{text}</span>
-          <span>{moment(created_at).format('LT')}</span>
+          <span>
+            {authorId === from && (
+              <>
+                {unread
+                  ? <i className="far fa-check-circle mr-2"></i>
+                  : <i className="fas fa-check-circle mr-2"></i>}
+              </>
+            )}
+            {moment(created_at).format('LT')}</span>
         </div>
       </div>
     </div>

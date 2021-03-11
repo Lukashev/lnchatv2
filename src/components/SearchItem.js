@@ -14,7 +14,7 @@ const SearchItem = ({ username, avatar, _id, status = 'offline', handleChatStart
         <strong>{username}</strong>
       </div>
       <div className='action-block text-right'>
-        <Button variant='primary' onClick={() => handleChatStart({ username, avatar, _id })}>
+        <Button variant='primary' onClick={() => handleChatStart({ username, avatar, _id, status })}>
           Start chat
         </Button>
       </div>

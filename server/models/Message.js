@@ -22,6 +22,10 @@ const msgSchema = new Schema({
   created_at: {
     type: Date,
     default: Date.now
+  },
+  unread: {
+    type: Boolean,
+    default: true
   }
 })
 

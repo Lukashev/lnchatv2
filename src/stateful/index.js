@@ -20,6 +20,35 @@ class SocketListener {
       this.triggerSnack(String(e), 2000)
     })
 
+    this.socket.on('message_read', (data) => {
+      const { chat, from, msgIds } = data
+      const { getState, dispatch } = this.store
+      const { chatSection, user, activeRoom } = getState()
+
+      console.table({ activeRoom, chat, userId: user._id })
+
+      if (user._id === from && activeRoom === chat) {
+        const clonedState = Object.assign({}, chatSection)
+        let chatList = clonedState.list
+        const chatIdx = chatList.findIndex(c => c._id === chat)
+        if (chatIdx > -1) {
+          chatList[chatIdx].messages = chatList[chatIdx].messages.map(m => {
+            if (msgIds.includes(m._id)) {
+              return { ...m, unread: false }
+            }
+            return m
+          })
+          dispatch({
+            type: 'SET_MAIN_STATE',
+            payload: {
+              ...chatSection,
+              list: chatList
+            }
+          })
+        }
+      }
+    })
+
     this.socket.on('chat_message', ({ message: msg, chat }) => {
 
       const decryptedText = CryptoJS.AES.decrypt(msg.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
@@ -27,11 +56,14 @@ class SocketListener {
       msg.text = decryptedText?.replace(/['"]+/g, '')
 
       const { getState, dispatch } = this.store
-      const { chatSection, user } = getState()
-      const { list } = chatSection
+      const { chatSection, activeRoom, user } = getState()
+      const { list } = Object.assign({}, chatSection)
 
       if (msg.to === user._id) {
         notificationAudio.play()
+        if (activeRoom && activeRoom === msg.chat) {
+          this.socket.emit('message_read', { to: msg.to, from: msg.from, chat: msg.chat })
+        }
       }
 
       const chatIdx = list.findIndex(c => c._id === msg.chat ||
@@ -40,8 +72,14 @@ class SocketListener {
           (c.chat_guest._id === msg.from && c.chat_owner._id === msg.to)
         )
       )
-      const clonedList = clone(list)
+      let clonedList = clone(list)
+
+      // console.log(clonedList, chat)
+
       if (chatIdx > -1) {
+        if (!clonedList[chatIdx].messages.length) {
+          clonedList[chatIdx]._id = chat._id
+        }
         clonedList[chatIdx].messages.push(msg)
         dispatch({
           type: 'SET_MAIN_STATE',
@@ -86,7 +124,7 @@ class SocketListener {
           return c.chat_guest._id === userId || c.chat_owner._id === userId
         })
 
-        let clonedChatList = clone(chatSection.list)
+        let { list: clonedChatList } = Object.assign({}, chatSection)
 
         if (chatIdx > - 1) {
           const currentChat = clonedChatList[chatIdx]
@@ -127,7 +165,7 @@ class SocketListener {
       const { _id: userId } = updatedUser
       const { getState, dispatch } = this.store
       const { chatSection, searchSection } = getState()
-      const chatList = clone(chatSection.list), searchList = clone(searchSection.list)
+      let { list: chatList } = Object.assign({}, chatSection), { list: searchList } = Object.assign({}, searchSection)
 
       const chatIdx = chatList.findIndex(c => c.chat_owner._id === userId || c.chat_guest._id === userId)
       const srchIdx = searchList.findIndex(u => u._id === userId)
