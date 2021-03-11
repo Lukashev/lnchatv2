@@ -23,11 +23,9 @@ class SocketListener {
     this.socket.on('message_read', (data) => {
       const { chat, from, msgIds } = data
       const { getState, dispatch } = this.store
-      const { chatSection, user, activeRoom } = getState()
+      const { chatSection, user } = getState()
 
-      console.table({ activeRoom, chat, userId: user._id })
-
-      if (user._id === from && activeRoom === chat) {
+      if (user._id === from) {
         const clonedState = Object.assign({}, chatSection)
         let chatList = clonedState.list
         const chatIdx = chatList.findIndex(c => c._id === chat)
