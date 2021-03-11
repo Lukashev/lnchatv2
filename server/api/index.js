@@ -27,7 +27,7 @@ router.get('/me', verifyToken, actions.getMe)
 router.get('/chats', verifyToken, actions.getChatList)
 router.get('/users', verifyToken, async (req, res) => {
   try {
-    return res.status(200).json({ result: await actions.searchUsers({ ...req.query, uname: req.user?._doc?.username }) })
+    return res.status(200).json({ result: await actions.searchUsers({ ...req.query, uid: req.user.id }) })
   } catch (e) {
     return res.status(500).json({ message: e.message })
   }

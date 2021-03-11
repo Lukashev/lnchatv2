@@ -48,6 +48,7 @@ const ProfileEditor = ({
         formData.append(key, payload[key])
       }
       const { data } = await api.updateUser(formData)
+      setUser(prevState => ({  ...prevState, ...data.result }))
       dispatch({
         type: 'SET_MAIN_STATE',
         payload: {
