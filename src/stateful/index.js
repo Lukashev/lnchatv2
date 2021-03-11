@@ -22,7 +22,9 @@ class SocketListener {
 
     this.socket.on('chat_message', ({ message: msg, chat }) => {
 
-      msg.text = JSON.parse(CryptoJS.AES.decrypt(msg.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8))
+      const decryptedText = CryptoJS.AES.decrypt(msg.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
+
+      msg.text = decryptedText?.replace(/['"]+/g, '')
 
       const { getState, dispatch } = this.store
       const { chatSection, user } = getState()

@@ -27,7 +27,7 @@ const Chat = () => {
                 const decryptedMsg = CryptoJS.AES.decrypt(m.text, process.env.REACT_APP_CRYPTO_KEY, { mode: CryptoJS.mode.ECB }).toString(CryptoJS.enc.Utf8)
                 return {
                   ...m,
-                  text: JSON.parse(decryptedMsg)
+                  text: decryptedMsg?.replace(/['"]+/g, '')
                 }
               })
               .filter(m => m.chat === c._id)
