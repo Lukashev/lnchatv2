@@ -114,3 +114,21 @@ aside .chat-list {
   }
 }
 
+.toolbar {
+  position: relative;
+}
+
+.emoji-picker-react * {
+  height: initial;
+}
+
+.messages-item--to {
+  position: relative;
+}
+
+.messages .fa-window-close {
+  position: absolute;
+  color: red;
+  top: 0;
+  right: 0;
+}

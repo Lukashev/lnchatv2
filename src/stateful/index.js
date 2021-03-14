@@ -20,6 +20,25 @@ class SocketListener {
       this.triggerSnack(String(e), 2000)
     })
 
+    this.socket.on('delete_message', ({ msgId, chatId }) => {
+      const { getState, dispatch } = this.store
+      const { chatSection } = getState()
+      const { list } = Object.assign({}, chatSection)
+      const chatIdx = list.findIndex(c => {
+        return c._id === chatId
+      })
+      list[chatIdx].messages = list[chatIdx].messages.filter(m => m._id !== msgId)
+      dispatch({
+        type: 'SET_MAIN_STATE',
+        payload: {
+          chatSection: {
+            ...chatSection,
+            list
+          }
+        }
+      })
+    })
+
     this.socket.on('message_read', (data) => {
       const { chat, from, msgIds } = data
       const { getState, dispatch } = this.store

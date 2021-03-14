@@ -1,5 +1,6 @@
 import React, { useEffect, useCallback, useState } from 'react'
 import { useMediaQuery } from 'react-responsive'
+import Picker, { SKIN_TONE_MEDIUM_DARK } from 'emoji-picker-react';
 import CryptoJS from 'crypto-js'
 import ScrollableFeed from 'react-scrollable-feed'
 import { Col, Container, Row } from 'react-bootstrap'
@@ -40,6 +41,7 @@ const SectionHandler = () => {
 
   // local state
   const [activeSection, setActiveSection] = useState(1)
+  const [emojiVisible, setEmojiVisible] = useState(false)
   const store = useStore()
   const [asideHeight, setAsideHeight] = useState(window.innerHeight - 203)
 
@@ -105,6 +107,7 @@ const SectionHandler = () => {
   const SectionComponent = sections[activeSection]
 
   const handleSendMsg = () => {
+    setEmojiVisible(false)
     const currentChat = chatSection.list.find(item => item._id === activeRoom)
     if (currentMsg === '') {
       return open('Message field is required!')
@@ -125,6 +128,36 @@ const SectionHandler = () => {
     if (key === 'Enter') {
       handleSendMsg()
     }
+  }
+
+  const onEmojiClick = (_, { emoji }) => {
+    dispatch({
+      type: 'SET_MAIN_STATE',
+      payload: {
+        chatSection: {
+          ...chatSection,
+          currentMsg: `${currentMsg}${emoji}`
+        }
+      }
+    })
+  }
+
+  const handleDeleteMsg = (msgId) => {
+    let { list } = Object.assign({}, chatSection)
+    const chatIdx = list.findIndex(c => {
+      return c._id === activeRoom
+    })
+    list[chatIdx].messages = list[chatIdx].messages.filter(m => m._id !== msgId)
+    socket.emit('delete_message', msgId)
+    dispatch({
+      type: 'SET_MAIN_STATE',
+      payload: {
+        chatSection: {
+          ...chatSection,
+          list
+        }
+      }
+    })
   }
 
   const room = activeRoom && chatSection.list.find(c => {
@@ -149,7 +182,7 @@ const SectionHandler = () => {
                 {Object.keys(msgSections).map(date => {
                   return <MessageSection key={date} date={date}>
                     {msgSections[date].map(msg => (
-                      <MessageItem key={msg._id} {...msg} authorId={user._id} />
+                      <MessageItem key={msg._id} {...msg} authorId={user._id} handleDeleteMsg={handleDeleteMsg} />
                     ))}
                   </MessageSection>
                 })}
@@ -165,8 +198,27 @@ const SectionHandler = () => {
             <button className="btn toolbar-items--audio" disabled>
               <i className="fas fa-microphone fa-lg"></i>
             </button>
+            <button onClick={() => setEmojiVisible(prevState => !prevState)} className="btn toolbar-items--audio">
+              <i className="far fa-smile fa-lg"></i>
+            </button>
+            {emojiVisible && <Picker
+              pickerStyle={{
+                position: 'absolute',
+                bottom: '100%'
+              }}
+              onEmojiClick={onEmojiClick}
+              disableAutoFocus
+              skinTone={SKIN_TONE_MEDIUM_DARK}
+              groupNames={{ smileys_people: 'PEOPLE' }}
+              native
+            />}
           </div>
-          <input type="text" onKeyPress={handleKeyPress} onChange={handleMsgChange} value={currentMsg} className="w-100" placeholder="Type a new message" />
+          <input
+            type="text"
+            onKeyPress={handleKeyPress}
+            onChange={handleMsgChange}
+            onFocus={() => setEmojiVisible(false)}
+            value={currentMsg} className="w-100" placeholder="Type a new message" />
           <Button
             className="toolbar--send-btn"
             disabled={!!!(user && (activeRoom !== null))}

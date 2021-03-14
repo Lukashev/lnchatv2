@@ -78,6 +78,14 @@ class SocketListener {
         }
       })
 
+      socket.on('delete_message', async msgId => {
+        const deletedMsg = await Message.findOneAndDelete({ _id: msgId })
+        const receiver = await User.findById(deletedMsg.to)
+        if (receiver.sessionId) {
+          socket.broadcast.to(receiver.sessionId).emit('delete_message', { msgId, chatId: deletedMsg.chat })
+        }
+      })
+
       /**
        * User disconnected listener
        */
